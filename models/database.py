@@ -1,37 +1,75 @@
 import mysql.connector
 from mysql.connector import Error
 
-def get_db_connection():
-    """Menginisialisasi koneksi terpusat ke database MySQL (Laragon)"""
-    try:
-        connection = mysql.connector.connect(
-            host='127.0.0.1',
-            database='agriuno',
-            user='root',
-            password=''
-        )
-        if connection.is_connected():
-            return connection
-    except Error as e:
-        print(f"Gagal terhubung ke database MySQL: {e}")
-        return None
+class DatabaseManager:
+    """
+    Kelas Model Terpusat untuk Manajemen Pangkalan Data MySQL (Laragon).
+    Menerapkan pola desain Singleton-like connection dan transaksi atomik.
+    """
+    
+    _HOST = '127.0.0.1'
+    _DATABASE = 'agriuno'
+    _USER = 'root'
+    _PASSWORD = ''
+    _PORT = 3306
 
-def insert_panen(id_petani, jenis_komoditas, jumlah_berat, tgl_panen):
-    """Menyimpan data setoran panen baru dengan Prepared Statement untuk mencegah SQL Injection"""
-    conn = get_db_connection()
-    if conn is not None:
+    @classmethod
+    def get_connection(cls):
+        """Membuat koneksi terenkapsulasi ke server basis data."""
         try:
-            cursor = conn.cursor()
-            query = "INSERT INTO inventori_panen (id_petani, jenis_komoditas, jumlah_berat, tgl_panen) VALUES (%s, %s, %s, %s)"
-            values = (id_petani, jenis_komoditas, jumlah_berat, tgl_panen)
-            cursor.execute(query, values)
+            connection = mysql.connector.connect(
+                host=cls._HOST,
+                database=cls._DATABASE,
+                user=cls._USER,
+                password=cls._PASSWORD,
+                port=cls._PORT
+            )
+            if connection.is_connected():
+                return connection
+        except Error as e:
+            print(f"[CRITICAL ERROR] Gagal terhubung ke MySQL: {e}")
+            return None
+
+    @classmethod
+    def execute_non_query(cls, query, params=None):
+        """Menjalankan kueri DML (INSERT, UPDATE, DELETE) dengan rollback pengaman."""
+        conn = cls.get_connection()
+        if not conn:
+            return False, "Koneksi ke basis data terputus."
+        
+        cursor = conn.cursor()
+        try:
+            conn.start_transaction()
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
             conn.commit()
-            return True
+            return True, "Operasi basis data berhasil dieksekusi."
         except Error as e:
             conn.rollback()
-            print(f"Error transaksi database: {e}")
-            return False
+            return False, f"Kesalahan transaksi basis data: {e}"
         finally:
             cursor.close()
             conn.close()
-    return False
+
+    @classmethod
+    def fetch_records(cls, query, params=None):
+        """Mengambil sekumpulan data (SELECT) dengan hasil berupa kamus data terstruktur."""
+        conn = cls.get_connection()
+        if not conn:
+            return []
+        
+        cursor = conn.cursor(dictionary=True)
+        try:
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            return cursor.fetchall()
+        except Error as e:
+            print(f"[ERROR FETCH] Gagal mengambil data: {e}")
+            return []
+        finally:
+            cursor.close()
+            conn.close()
