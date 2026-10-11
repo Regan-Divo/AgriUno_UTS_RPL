@@ -1,19 +1,14 @@
-# ==========================================
-# KONFIGURASI KONEKSI DATABASE - AGRIUNO
-# ==========================================
 import mysql.connector
-from mysql.connector import Error
 
 def get_connection():
     try:
         connection = mysql.connector.connect(
-            host="localhost",
+            host="127.0.0.1",
             user="root",
             password="",
-            database="agriuno"  # Sesuai nama database lokal
+            database="agriuno"
         )
-        if connection.is_connected():
-            return connection
-    except Error as e:
-        print(f"Gagal terhubung ke basis data MySQL: {e}")
+        return connection
+    except mysql.connector.Error as err:
+        print(f"Error connecting to database: {err}")
         return None
