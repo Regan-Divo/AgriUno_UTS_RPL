@@ -1,86 +1,60 @@
-from config.database import get_connection
+from config.database import DatabaseConnection
+import mysql.connector  # <-- WAJIB DITAMBAHKAN AGAR BARIS 13 TIDAK ERROR!
 
 class PetaniModel:
     @staticmethod
-    def tambah_petani(nama_petani, lokasi_lahan, komoditas_utama):
-        nama_petani = nama_petani.strip().title()
-        lokasi_lahan = lokasi_lahan.strip().title()
-        komoditas_utama = komoditas_utama.strip().title()
-        
-        conn = get_connection()
-        if not conn:
-            return False, "Koneksi database gagal."
+    def get_all():
+        conn = DatabaseConnection.connect()
+        if not conn: return []
         cursor = conn.cursor(dictionary=True)
-        try:
-            check_query = """
-                SELECT id_petani FROM petani 
-                WHERE LOWER(nama_petani) = LOWER(%s) 
-                  AND LOWER(lokasi_lahan) = LOWER(%s) 
-                  AND LOWER(komoditas_utama) = LOWER(%s)
-            """
-            cursor.execute(check_query, (nama_petani, lokasi_lahan, komoditas_utama))
-            if cursor.fetchone():
-                return False, f"Data petani '{nama_petani}' dengan detail tersebut sudah terdaftar!"
-
-            query = "INSERT INTO petani (nama_petani, lokasi_lahan, komoditas_utama) VALUES (%s, %s, %s)"
-            cursor.execute(query, (nama_petani, lokasi_lahan, komoditas_utama))
-            conn.commit()
-            return True, "Data petani berhasil ditambahkan."
-        except Exception as e:
-            return False, f"Terjadi kesalahan: {e}"
-        finally:
-            cursor.close()
-            conn.close()
+        cursor.execute("SELECT * FROM petani")
+        result = cursor.fetchall()
+        cursor.close(); conn.close()
+        return result
 
     @staticmethod
-    def update_petani(id_petani, nama_petani, lokasi_lahan, komoditas_utama):
-        nama_petani = nama_petani.strip().title()
-        lokasi_lahan = lokasi_lahan.strip().title()
-        komoditas_utama = komoditas_utama.strip().title()
-
-        conn = get_connection()
-        if not conn:
-            return False, "Koneksi database gagal."
+    def insert(nama, lokasi, komoditas):
+        conn = DatabaseConnection.connect()
+        if not conn: return False
         cursor = conn.cursor()
-        try:
-            query = "UPDATE petani SET nama_petani = %s, lokasi_lahan = %s, komoditas_utama = %s WHERE id_petani = %s"
-            cursor.execute(query, (nama_petani, lokasi_lahan, komoditas_utama, id_petani))
-            conn.commit()
-            return True, "Data petani berhasil diperbarui."
-        except Exception as e:
-            return False, f"Terjadi kesalahan: {e}"
-        finally:
-            cursor.close()
-            conn.close()
+        cursor.execute("INSERT INTO petani (nama_petani, lokasi_lahan, komoditas_utama) VALUES (%s, %s, %s)", (nama, lokasi, komoditas))
+        conn.commit()
+        cursor.close(); conn.close()
+        return True
 
     @staticmethod
-    def delete_petani(id_petani):
-        conn = get_connection()
-        if not conn:
-            return False, "Koneksi database gagal."
+    def update(id_petani, nama, lokasi, komoditas):
+        conn = DatabaseConnection.connect()
+        if not conn: return False
         cursor = conn.cursor()
+        cursor.execute("UPDATE petani SET nama_petani=%s, lokasi_lahan=%s, komoditas_utama=%s WHERE id_petani=%s", (nama, lokasi, komoditas, id_petani))
+        conn.commit()
+        cursor.close(); conn.close()
+        return True
+
+    @staticmethod
+    def delete(id_petani):
+        conn = DatabaseConnection.connect()
+        if not conn: 
+            return False, "Koneksi database gagal!"
+        
         try:
+            cursor = conn.cursor()
             cursor.execute("DELETE FROM petani WHERE id_petani = %s", (id_petani,))
             conn.commit()
-            return True, "Data petani berhasil dihapus."
-        except Exception as e:
-            return False, f"Gagal menghapus: Petani masih memiliki relasi data panen aktif."
-        finally:
             cursor.close()
             conn.close()
-
-    @staticmethod
-    def get_all_petani():
-        conn = get_connection()
-        if not conn:
-            return []
-        cursor = conn.cursor(dictionary=True)
-        try:
-            cursor.execute("SELECT id_petani, nama_petani, lokasi_lahan, komoditas_utama FROM petani")
-            return cursor.fetchall()
+            return True, "Data petani berhasil dihapus!"
+            
+        except mysql.connector.Error as err:
+            if conn and conn.is_connected():
+                conn.close()
+            # Error Code 1451: Foreign Key Constraint Fail (Terikat data panen)
+            if err.errno == 1451:
+                return False, "Gagal menghapus! Petani masih memiliki riwayat setoran panen aktif di gudang."
+            else:
+                return False, f"Terjadi kesalahan database: {err.msg}"
         except Exception as e:
-            print(f"Error: {e}")
-            return []
-        finally:
-            cursor.close()
-            conn.close()
+            if conn and conn.is_connected():
+                conn.close()
+            return False, f"Terjadi kesalahan sistem: {str(e)}"

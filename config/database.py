@@ -1,14 +1,24 @@
+"""
+==========================================
+KONFIGURASI DATABASE MYSQL - AGRIUNO
+Database: agriuno (Laragon)
+==========================================
+"""
 import mysql.connector
+from mysql.connector import Error
 
-def get_connection():
-    try:
-        connection = mysql.connector.connect(
-            host="127.0.0.1",
-            user="root",
-            password="",
-            database="agriuno"
-        )
-        return connection
-    except mysql.connector.Error as err:
-        print(f"Error connecting to database: {err}")
+class DatabaseConnection:
+    @staticmethod
+    def connect():
+        try:
+            connection = mysql.connector.connect(
+                host='localhost',
+                database='agriuno',
+                user='root',
+                password=''
+            )
+            if connection.is_connected():
+                return connection
+        except Error as e:
+            print(f"Kesalahan Koneksi Database: {e}")
         return None
