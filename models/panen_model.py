@@ -1,4 +1,5 @@
 from config.database import DatabaseConnection
+import mysql.connector
 
 class PanenModel:
     @staticmethod
@@ -34,9 +35,15 @@ class PanenModel:
     @staticmethod
     def delete(id_panen):
         conn = DatabaseConnection.connect()
-        if not conn: return False
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM inventori_panen WHERE id_panen=%s", (id_panen,))
-        conn.commit()
-        cursor.close(); conn.close()
-        return True
+        if not conn: return False, "Koneksi database gagal!"
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM inventori_panen WHERE id_panen=%s", (id_panen,))
+            conn.commit()
+            cursor.close(); conn.close()
+            return True, "Lot panen berhasil dihapus!"
+        except mysql.connector.Error as err:
+            if conn and conn.is_connected(): conn.close()
+            if err.errno == 1451:
+                return False, "Gagal menghapus! Lot panen masih terikat dengan data alokasi distribusi."
+            return False, f"Error DB: {err.msg}"

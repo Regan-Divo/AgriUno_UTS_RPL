@@ -6,6 +6,7 @@ CONTROLLER UTAMA - AGRIUNO
 from models.petani_model import PetaniModel
 from models.panen_model import PanenModel
 from models.distribusi_model import DistribusiModel
+from config.database import DatabaseConnection
 
 class AgriUnoController:
     # --- Petani Logic ---
@@ -29,8 +30,7 @@ class AgriUnoController:
     @staticmethod
     def hapus_petani(id_petani):
         if not id_petani: return False, "Pilih data petani yang ingin dihapus!"
-        PetaniModel.delete(id_petani)
-        return True, "Data petani berhasil dihapus!"
+        return PetaniModel.delete(id_petani)
 
     # --- Panen Logic ---
     @staticmethod
@@ -59,10 +59,9 @@ class AgriUnoController:
     @staticmethod
     def hapus_panen(id_panen):
         if not id_panen: return False, "Pilih lot panen yang ingin dihapus!"
-        PanenModel.delete(id_panen)
-        return True, "Lot panen berhasil dihapus!"
+        return PanenModel.delete(id_panen)
 
-    # --- Distribusi Logic (Aturan Bisnis BR-04: Status Awal 'Diproses') ---
+    # --- Distribusi Logic (Validasi Sisa Stok BR-02 & Status Awal 'Diproses' BR-04) ---
     @staticmethod
     def get_distribusi():
         return DistribusiModel.get_all()
@@ -77,7 +76,32 @@ class AgriUnoController:
         except ValueError:
             return False, "Jumlah dikirim harus berupa angka!"
             
-        DistribusiModel.insert(id_panen, tujuan, jumlah, status="Diproses")
+        # Validasi ketersediaan stok (Aturan Bisnis BR-02)
+        conn = DatabaseConnection.connect()
+        if not conn: return False, "Koneksi database gagal!"
+        cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("SELECT jumlah_berat FROM inventori_panen WHERE id_panen = %s", (id_panen,))
+        panen = cursor.fetchone()
+        
+        if not panen:
+            cursor.close(); conn.close()
+            return False, "ID Panen tidak terdaftar di sistem!"
+            
+        total_berat = float(panen['jumlah_berat'])
+        
+        cursor.execute("SELECT SUM(jumlah_dikirim) as total_kirim FROM distribusi WHERE id_panen = %s", (id_panen,))
+        dist = cursor.fetchone()
+        sudah_kirim = float(dist['total_kirim']) if dist['total_kirim'] is not None else 0.0
+        
+        cursor.close(); conn.close()
+        
+        sisa_stok = total_berat - sudah_kirim
+        
+        if j_float > sisa_stok:
+            return False, f"Jumlah kirim melebihi sisa stok inventori yang tersedia di gudang! (Sisa: {sisa_stok:.2f} Kg)"
+            
+        DistribusiModel.insert(id_panen, tujuan, j_float, status="Diproses")
         return True, "Alokasi pengiriman berhasil dibuat (Status Awal: Diproses)!"
 
     @staticmethod

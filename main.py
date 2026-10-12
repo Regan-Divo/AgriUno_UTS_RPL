@@ -23,7 +23,6 @@ class AgriUnoApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         
-        # Sidebar Kiri
         sidebar = ctk.CTkFrame(self, width=220, fg_color="#1b4332", corner_radius=0)
         sidebar.grid(row=0, column=0, sticky="nsew")
         
@@ -40,7 +39,6 @@ class AgriUnoApp(ctk.CTk):
         ctk.CTkLabel(footer_frame, text="Status: Aktif (Admin)", font=("Arial", 11), text_color="#cbd5e1").pack(anchor="w")
         ctk.CTkButton(footer_frame, text="Keluar", fg_color="#dc2626", hover_color="#b91c1c", text_color="white", command=self.destroy).pack(fill="x", pady=(8, 0))
 
-        # Konten Utama Kanan
         self.content = ctk.CTkFrame(self, fg_color="#f8f9fa", corner_radius=0)
         self.content.grid(row=0, column=1, sticky="nsew")
         self.content.grid_rowconfigure(0, weight=1)

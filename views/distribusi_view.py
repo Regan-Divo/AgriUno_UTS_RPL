@@ -61,7 +61,7 @@ class DistribusiView(ctk.CTkFrame):
         sukses, pesan = self.controller.tambah_distribusi(self.e_id_panen.get(), self.e_tujuan.get(), self.e_jumlah.get())
         if sukses:
             messagebox.showinfo("Sukses", pesan); self.clear_form(); self.load_table()
-        else: messagebox.showerror("Error", pesan)
+        else: messagebox.showerror("Validasi Stok (BR-02)", pesan)
 
     def on_select(self, event):
         selected_item = self.tree.focus()
@@ -88,3 +88,4 @@ class DistribusiView(ctk.CTkFrame):
             sukses, pesan = self.controller.hapus_distribusi(self.selected_id)
             if sukses:
                 messagebox.showinfo("Sukses", pesan); self.clear_form(); self.load_table()
+            else: messagebox.showerror("Error", pesan)

@@ -89,3 +89,4 @@ class PanenView(ctk.CTkFrame):
             sukses, pesan = self.controller.hapus_panen(self.selected_id)
             if sukses:
                 messagebox.showinfo("Sukses", pesan); self.reset_form(); self.load_table()
+            else: messagebox.showerror("Gagal", pesan)

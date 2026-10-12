@@ -27,9 +27,7 @@ class LoginView(ctk.CTk):
         ctk.CTkButton(frame, text="Masuk Sistem", fg_color="#1b4332", hover_color="#2d6a4f", width=280, height=40, font=("Arial", 13, "bold"), command=self.proses_login).pack(pady=(20, 35))
 
     def proses_login(self):
-        user = self.e_user.get()
-        pwd = self.e_pass.get()
-        if user == "admin" and pwd == "12345":
+        if self.e_user.get() == "admin" and self.e_pass.get() == "12345":
             messagebox.showinfo("Sukses", "Login Berhasil! Selamat datang, Administrator.")
             self.destroy()
             self.on_login_success()

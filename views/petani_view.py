@@ -80,3 +80,5 @@ class PetaniView(ctk.CTkFrame):
             sukses, pesan = self.controller.hapus_petani(self.selected_id)
             if sukses:
                 messagebox.showinfo("Sukses", pesan); self.clear_form(); self.load_table()
+            else:
+                messagebox.showerror("Gagal Menghapus", pesan)

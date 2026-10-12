@@ -7,7 +7,6 @@ class DashboardView(ctk.CTkFrame):
         
         ctk.CTkLabel(self, text="Dashboard Ringkasan Sistem Operasional", font=("Arial", 22, "bold"), text_color="#1b4332").pack(anchor="w", padx=30, pady=20)
         
-        # Kartu Statistik
         cards_frame = ctk.CTkFrame(self, fg_color="transparent")
         cards_frame.pack(anchor="w", padx=30, pady=5)
         
@@ -15,17 +14,14 @@ class DashboardView(ctk.CTkFrame):
         self.lbl_h = self.create_stat_card(cards_frame, "Total Lot Panen", "0", "#d97706", 1)
         self.lbl_d = self.create_stat_card(cards_frame, "Total Distribusi", "0", "#2d6a4f", 2)
         
-        # Progress Bar Chart Indicator
         chart_box = ctk.CTkFrame(self, fg_color="white", corner_radius=8)
         chart_box.pack(fill="x", padx=30, pady=20)
-        
         ctk.CTkLabel(chart_box, text="Indikator Kinerja Rantai Pasok Pertanian", font=("Arial", 14, "bold"), text_color="#1b4332").pack(anchor="w", padx=20, pady=(15, 10))
         
         self.create_progress_indicator(chart_box, "Aktivasi Petani Terdaftar", 0.75)
         self.create_progress_indicator(chart_box, "Kapasitas Serapan Gudang", 0.50)
         self.create_progress_indicator(chart_box, "Efisiensi Logistik Distribusi", 0.85)
 
-        # Deskripsi Sistem
         info_box = ctk.CTkFrame(self, fg_color="white", corner_radius=8)
         info_box.pack(fill="x", padx=30, pady=5)
         ctk.CTkLabel(info_box, text="Tentang Sistem AgriUno", font=("Arial", 14, "bold"), text_color="#1b4332").pack(anchor="w", padx=20, pady=(12, 5))

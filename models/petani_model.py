@@ -1,5 +1,5 @@
 from config.database import DatabaseConnection
-import mysql.connector  # <-- WAJIB DITAMBAHKAN AGAR BARIS 13 TIDAK ERROR!
+import mysql.connector
 
 class PetaniModel:
     @staticmethod
@@ -42,16 +42,14 @@ class PetaniModel:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM petani WHERE id_petani = %s", (id_petani,))
             conn.commit()
-            cursor.close()
-            conn.close()
+            cursor.close(); conn.close()
             return True, "Data petani berhasil dihapus!"
             
         except mysql.connector.Error as err:
             if conn and conn.is_connected():
                 conn.close()
-            # Error Code 1451: Foreign Key Constraint Fail (Terikat data panen)
             if err.errno == 1451:
-                return False, "Gagal menghapus! Petani masih memiliki riwayat setoran panen aktif di gudang."
+                return False, "Gagal menghapus! Petani masih memiliki riwayat setoran panen aktif di gudang (BR-01)."
             else:
                 return False, f"Terjadi kesalahan database: {err.msg}"
         except Exception as e:
