@@ -1,0 +1,85 @@
+name: Python CI Pipeline - Sistem AgriUno
+
+# ===========================================================================
+#  PIPELINE CONTINUOUS INTEGRATION (Modul 8)
+# ===========================================================================
+#  Pipeline ini dijalankan otomatis oleh GitHub Actions setiap kali kode
+#  diunggah ke branch main atau ketika terdapat pull request.
+#
+#  Tahapan yang dijalankan:
+#    1. Checkout repositori.
+#    2. Menyiapkan lingkungan Python 3.11.
+#    3. Memasang dependensi dari requirements.txt.
+#    4. Menjalankan pengujian otomatis dengan pytest beserta laporan
+#       cakupan kode (coverage).
+#    5. Memeriksa kualitas kode dengan ruff (lint + format check).
+#
+#  PENGUJIAN YANG MEMBUTUHKAN BASIS DATA DILEWATI secara otomatis
+#  apabila variabel lingkungan AGRIUNO_DB_NAME tidak tersedia. Test yang
+#  bergantung pada database ditandai dengan penanda @pytest.mark.db.
+# ===========================================================================
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test - AgriUno
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Cache pytest
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pytest
+          key: ${{ runner.os }}-pytest-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pytest-
+
+      - name: Run unit tests with coverage
+        run: |
+          pytest -v --cov=config --cov=models --cov=controllers --cov=views \
+                 --cov-report=term-missing --cov-report=xml
+
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check .
+
+      - name: Check code formatting
+        run: |
+          ruff format --check .
+
+      - name: Verify database schema file is present
+        run: |
+          test -f database.sql
+          echo "Skema basis data agriuno tersedia."
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          if-no-files-found: ignore
