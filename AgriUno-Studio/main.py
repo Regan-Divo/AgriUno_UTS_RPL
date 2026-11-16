@@ -15,16 +15,16 @@ import os
 import sys
 
 import customtkinter as ctk
+from views.dialog_ubah_sandi import DialogUbahSandi
+from views.pengguna_view import PenggunaView
 
 from config import constants, ui_kit
 from config.mesin_database import siapkan_database
 from controllers.auth_controller import AuthController, Session
 from views.dashboard_view import DashboardView
-from views.dialog_ubah_sandi import DialogUbahSandi
 from views.distribusi_view import DistribusiView
 from views.login_view import LoginView
 from views.panen_view import PanenView
-from views.pengguna_view import PenggunaView
 from views.petani_view import PetaniView
 from views.splash_view import SplashView
 

@@ -23,7 +23,7 @@ class UserController:
         return UserModel.get_all(cari)
 
     @staticmethod
-    def daftar(nama, username, password, konfirmasi, role):
+    def daftar_akun_baru(nama, username, password, konfirmasi, role):
         """Mendaftarkan akun baru melalui formulir registrasi (FR-08)."""
         return UserModel.register(nama, username, password, konfirmasi, role)
 

@@ -62,6 +62,11 @@ jobs:
           pytest -v --cov=config --cov=models --cov=controllers --cov=views \
                  --cov-report=term-missing --cov-report=xml
 
+      - name: Run AgriUno Studio tests
+        run: |
+          cd AgriUno-Studio
+          pytest -v --cov=. --cov-report=term-missing
+
       - name: Lint with ruff
         run: |
           pip install ruff

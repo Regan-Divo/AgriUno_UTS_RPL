@@ -14,8 +14,6 @@ import customtkinter as ctk
 from PIL import Image
 
 from config.constants import (
-    AMBER,
-    AMBER_LEMBUT,
     BIRU,
     BIRU_LEMBUT,
     FONT,
@@ -27,7 +25,6 @@ from config.constants import (
     IKON,
     KARTU,
     KEPALA_TABEL,
-    LATAR,
     LOGO,
     MERAH,
     MERAH_LEMBUT,
@@ -293,7 +290,6 @@ def gambar_logo(ukuran):
     """Memuat logo sebagai CTkImage bila berkas tersedia."""
     if not os.path.exists(LOGO):
         return None
-    from PIL import Image
 
     im = Image.open(LOGO).convert("RGBA")
     return ctk.CTkImage(light_image=im, dark_image=im, size=(ukuran, ukuran))
@@ -336,6 +332,4 @@ class DialogModal(ctk.CTkToplevel):
         baris = ctk.CTkFrame(parent, fg_color="transparent")
         baris.pack(fill="x", pady=(18, 0))
         tombol(baris, "Batal", self.destroy, jenis="sekunder", lebar=120).pack(side="right")
-        tombol(baris, teks_ok, perintah, jenis="primer", lebar=140).pack(
-            side="right", padx=(0, 10)
-        )
+        tombol(baris, teks_ok, perintah, jenis="primer", lebar=140).pack(side="right", padx=(0, 10))

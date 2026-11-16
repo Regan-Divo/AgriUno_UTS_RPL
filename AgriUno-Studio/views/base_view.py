@@ -5,6 +5,7 @@ import customtkinter as ctk
 from config import ui_kit
 from controllers.auth_controller import AuthController
 
+
 class HalamanDasar(ctk.CTkFrame):
     """Kerangka halaman: header, alat pencarian, tabel, panel detail."""
 

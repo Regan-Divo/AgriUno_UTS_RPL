@@ -8,6 +8,7 @@ di dalam kelas model.
 """
 
 from models.dashboard_model import DashboardModel
+
 from models.distribusi_model import DistribusiModel
 from models.panen_model import PanenModel
 from models.petani_model import PetaniModel
@@ -128,9 +129,7 @@ class AgriUnoController:
     @staticmethod
     def update_distribusi(user, id_distribusi, id_panen, tujuan, jumlah, status):
         """Memperbarui alokasi pengiriman."""
-        return DistribusiModel.simpan(
-            user, id_distribusi, id_panen, tujuan, jumlah, status
-        )
+        return DistribusiModel.simpan(user, id_distribusi, id_panen, tujuan, jumlah, status)
 
     @staticmethod
     def update_status(user, id_distribusi, status):

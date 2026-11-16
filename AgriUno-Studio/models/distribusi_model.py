@@ -2,12 +2,12 @@
 
 import logging
 
-from models.base_model import ke_decimal
-
 import mysql.connector
 
 from config.constants import ALUR_STATUS, STATUS_DAFTAR, STATUS_DIPROSES, STATUS_TERKIRIM, boleh
 from config.database import DatabaseTidakTersedia, kursor
+from models.base_model import ke_decimal
+
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +44,6 @@ class DistribusiModel:
         except DatabaseTidakTersedia as exc:
             logger.error("daftar_distribusi: %s", exc)
             return []
-
 
     @staticmethod
     def simpan(user, id_distribusi, id_panen, tujuan, jumlah, status):
@@ -123,7 +122,6 @@ class DistribusiModel:
             logger.error("simpan_distribusi: %s", err)
             return False, "Terjadi kesalahan database: %s" % err
 
-
     @staticmethod
     def lanjut_status(user, id_distribusi):
         """Memajukan status pengiriman satu tahap (alur satu-klik).
@@ -156,7 +154,6 @@ class DistribusiModel:
             logger.error("lanjut_status: %s", err)
             return False, "Terjadi kesalahan database: %s" % err
 
-
     @staticmethod
     def hapus(user, id_distribusi):
         """Menghapus alokasi (hanya Administrator; Terkirim terkunci, BR-09)."""
@@ -180,7 +177,6 @@ class DistribusiModel:
         except mysql.connector.Error as err:
             logger.error("hapus_distribusi: %s", err)
             return False, "Terjadi kesalahan database: %s" % err
-
 
     # ========================================================
     # METODE KATALOG KELAS (dokumentasi teknis 4.7)
@@ -212,9 +208,7 @@ class DistribusiModel:
     @staticmethod
     def update_with_stock_check(user, id_distribusi, id_panen, tujuan, jumlah, status):
         """Memperbarui alokasi setelah pemeriksaan sisa stok (BR-02)."""
-        return DistribusiModel.simpan(
-            user, id_distribusi, id_panen, tujuan, jumlah, status
-        )
+        return DistribusiModel.simpan(user, id_distribusi, id_panen, tujuan, jumlah, status)
 
     @staticmethod
     def count(status=""):
@@ -236,11 +230,12 @@ class DistribusiModel:
     @staticmethod
     def count_by_status():
         """Menghitung jumlah alokasi per status pengiriman."""
-        hasil = {status: 0 for status in STATUS_DAFTAR}
+        hasil = dict.fromkeys(STATUS_DAFTAR, 0)
         try:
             with kursor(commit=False) as cur:
                 cur.execute(
-                    "SELECT status_pengiriman, COUNT(*) AS t FROM distribusi GROUP BY status_pengiriman"
+                    "SELECT status_pengiriman, COUNT(*) AS t FROM distribusi "
+                    "GROUP BY status_pengiriman"
                 )
                 for row in cur.fetchall():
                     hasil[row["status_pengiriman"]] = int(row["t"])
@@ -266,9 +261,7 @@ class DistribusiModel:
     @staticmethod
     def update(user, id_distribusi, id_panen, tujuan, jumlah, status):
         """Memperbarui alokasi yang sudah ada."""
-        return DistribusiModel.simpan(
-            user, id_distribusi, id_panen, tujuan, jumlah, status
-        )
+        return DistribusiModel.simpan(user, id_distribusi, id_panen, tujuan, jumlah, status)
 
     @staticmethod
     def delete(user, id_distribusi):

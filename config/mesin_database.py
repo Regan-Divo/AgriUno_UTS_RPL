@@ -1,6 +1,6 @@
 """
 ==========================================================
-MESIN DATABASE BAWAAN - AGRIUNO
+MESIN DATABASE BAWAAN - AGRIUNO EDISI STUDIO
 ==========================================================
 Memastikan basis data siap sebelum jendela apa pun tampil.
 
@@ -11,19 +11,23 @@ Alur yang dijamin modul ini:
    beserta isinya tersedia.
 
 2. Bila server belum berjalan, hidupkan salinan mesin MySQL bawaan
-   yang ikut didistribusikan pada folder ``runtime/mysql`` sehingga
-   pengguna tidak perlu memasang Laragon maupun mengatur apa pun.
-   Data tersimpan pada folder ``runtime/data`` di samping aplikasi.
+   yang ikut dipaketkan di dalam berkas eksekusi sehingga pengguna
+   tidak perlu memasang Laragon maupun mengatur apa pun. Mesin
+   pertama kali disalin ke folder data aplikasi (%LOCALAPPDATA%),
+   lalu dijalankan dari sana dengan data tersimpan pada folder
+   ``data`` di sampingnya.
 
 3. Bila database ``agriuno`` belum ada atau masih kosong, berkas
-   ``database.sql`` diimpor otomatis sehingga akun demo langsung
-   dapat dipakai pada percobaan masuk pertama.
+   ``database.sql`` (ikut dipaketkan) diimpor otomatis sehingga akun
+   demo langsung dapat dipakai pada percobaan masuk pertama.
 
 Seluruh kegagalan dikembalikan sebagai pasangan (status, pesan)
 tanpa melemparkan galat ke lapisan antarmuka (NFR-03).
 """
 
 import logging
+import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -39,29 +43,67 @@ logger = logging.getLogger(__name__)
 #: Batas waktu (detik) menunggu server bawaan siap menerima koneksi.
 BATAS_MENUNGGU_SERVER = 90
 
-#: Batas waktu (detik) menunggu proses inisialisasi folder data.
+#: Batas waktu (detik) menunggu proses inisialisasi/salin mesin.
 BATAS_INISIALISASI = 300
 
 
 # ------------------------------------------------------------
-# Lokasi berkas
+# Lokasi sumber daya dan data
 # ------------------------------------------------------------
-def basis_direktori():
-    """Folder tempat aplikasi dipasang.
+def folder_bundel():
+    """Folder berisi sumber daya yang ikut dipaketkan.
 
-    Untuk aplikasi pemaketan (PyInstaller) folder ini adalah lokasi
-    berkas ``.exe``; untuk kode sumber adalah akar repositori.
+    Untuk aplikasi pemaketan (PyInstaller onefile) sumber daya
+    diekstrak ke folder sementara ``sys._MEIPASS``; untuk kode
+    sumber adalah akar repositori.
     """
     if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
+        return Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
     return Path(__file__).resolve().parent.parent
+
+
+def folder_data():
+    """Folder data pengguna yang pasti dapat ditulis.
+
+    Aplikasi pemaketan memakai ``%LOCALAPPDATA%\\AgriUnoStudio``
+    agar data tetap tersimpan antar sesi; kode sumber memakai akar
+    repositori.
+    """
+    if getattr(sys, "frozen", False):
+        dasar = (
+            Path(os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData" / "Local")))
+            / "AgriUnoStudio"
+        )
+    else:
+        dasar = Path(__file__).resolve().parent.parent
+    dasar.mkdir(parents=True, exist_ok=True)
+    return dasar
+
+
+def _salin_mesin(tujuan):
+    """Menyalin mesin MySQL bawaan dari paket ke folder data aplikasi.
+
+    Menyalin (bukan menjalankan langsung dari folder sementara)
+    agar berkas mesin tidak terkunci pada folder ekstraksi sementara
+    yang dihapus setiap aplikasi ditutup.
+    """
+    sumber = folder_bundel() / "mysql"
+    if not sumber.is_dir():
+        logger.error("Folder mesin MySQL tidak ada di dalam paket.")
+        return False
+    if (tujuan / "bin" / "mysqld.exe").is_file():
+        return True
+    logger.info("Menyalin mesin data bawaan ke folder aplikasi...")
+    shutil.copytree(sumber, tujuan, dirs_exist_ok=True)
+    return (tujuan / "bin" / "mysqld.exe").is_file()
 
 
 def cari_mysqld():
     """Mengembalikan lokasi ``mysqld.exe`` bawaan, atau ``None``."""
     kandidat = [
-        basis_direktori() / "runtime" / "mysql" / "bin" / "mysqld.exe",
-        basis_direktori() / "mysql" / "bin" / "mysqld.exe",
+        folder_data() / "mysql" / "bin" / "mysqld.exe",
+        folder_bundel() / "mysql" / "bin" / "mysqld.exe",
+        folder_bundel() / "runtime" / "mysql" / "bin" / "mysqld.exe",
     ]
     for berkas in kandidat:
         if berkas.is_file():
@@ -84,7 +126,7 @@ def server_hidup():
         )
         koneksi.close()
         return True
-    except mysql.connector.Error as exc:
+    except Exception as exc:  # noqa: BLE001 - galat apa pun berarti server belum siap
         logger.info("Server MySQL belum dapat dihubungi: %s", exc)
         return False
 
@@ -127,12 +169,17 @@ def _inisialisasi_data(mysqld, datadir):
         "--basedir=%s" % mysqld.parent.parent,
         "--datadir=%s" % datadir,
     ]
-    hasil = subprocess.run(
-        perintah,
-        capture_output=True,
-        text=True,
-        timeout=BATAS_INISIALISASI,
-    )
+    try:
+        hasil = subprocess.run(
+            perintah,
+            capture_output=True,
+            text=True,
+            timeout=BATAS_INISIALISASI,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+    except subprocess.TimeoutExpired:
+        logger.error("Inisialisasi data MySQL melebihi batas waktu.")
+        return False
     if hasil.returncode != 0:
         logger.error("Inisialisasi data MySQL gagal: %s", hasil.stderr[-500:])
         return False
@@ -141,54 +188,63 @@ def _inisialisasi_data(mysqld, datadir):
 
 
 def _hidupkan_server(mysqld, datadir):
-    """Menjalankan ``mysqld`` sebagai proses terpisah (tetap hidup)."""
-    log = basis_direktori() / "runtime" / "mysqld.log"
-    berkas_log = None
+    """Menjalankan ``mysqld`` sebagai proses terpisah (tetap hidup).
+
+    Log galat diarahkan ke berkas ``mysqld.log`` lewat ``--log-error``
+    (tanpa ``--console``) agar mysqld tidak membuat jendela konsol
+    pada komputer pengguna.
+    """
+    log = folder_data() / "mysqld.log"
     try:
-        berkas_log = open(log, "w", encoding="utf-8")
         subprocess.Popen(
             [
                 str(mysqld),
                 "--no-defaults",
-                "--console",
                 "--basedir=%s" % mysqld.parent.parent,
                 "--datadir=%s" % datadir,
+                "--log-error=%s" % log,
                 "--port=%d" % DB_PORT,
                 "--bind-address=127.0.0.1",
             ],
-            stdout=berkas_log,
-            stderr=berkas_log,
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
-            | subprocess.DETACHED_PROCESS,
+            | subprocess.DETACHED_PROCESS
+            | subprocess.CREATE_NO_WINDOW,
             close_fds=True,
         )
         logger.info("Mesin MySQL bawaan dijalankan pada port %d.", DB_PORT)
-    finally:
-        if berkas_log is not None:
-            berkas_log.close()
+    except OSError as exc:
+        logger.error("Gagal menjalankan mesin MySQL bawaan: %s", exc)
 
 
 def _impor_database():
     """Mengimpor ``database.sql`` melalui klien ``mysql.exe`` bawaan."""
-    sumber = basis_direktori() / "database.sql"
-    klien = cari_mysqld().parent / "mysql.exe"
-    if not sumber.is_file() or not klien.is_file():
+    sumber = folder_bundel() / "database.sql"
+    if not sumber.is_file():
+        sumber = folder_bundel().parent / "database.sql"
+    mysqld = cari_mysqld()
+    klien = mysqld.parent / "mysql.exe" if mysqld else None
+    if not sumber.is_file() or klien is None or not klien.is_file():
         logger.error("Berkas database.sql atau klien mysql.exe tidak ditemukan.")
         return False
-    with open(sumber, "r", encoding="utf-8") as aliran:
-        hasil = subprocess.run(
-            [
-                str(klien),
-                "--no-defaults",
-                "--host=%s" % DB_HOST,
-                "--port=%d" % DB_PORT,
-                "--user=%s" % DB_USER,
-            ],
-            stdin=aliran,
-            capture_output=True,
-            text=True,
-            timeout=BATAS_INISIALISASI,
-        )
+    with open(sumber, encoding="utf-8") as aliran:
+        try:
+            hasil = subprocess.run(
+                [
+                    str(klien),
+                    "--no-defaults",
+                    "--host=%s" % DB_HOST,
+                    "--port=%d" % DB_PORT,
+                    "--user=%s" % DB_USER,
+                ],
+                stdin=aliran,
+                capture_output=True,
+                text=True,
+                timeout=BATAS_INISIALISASI,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+            )
+        except subprocess.TimeoutExpired:
+            logger.error("Impor database.sql melebihi batas waktu.")
+            return False
     if hasil.returncode != 0:
         logger.error("Impor database.sql gagal: %s", hasil.stderr[-500:])
         return False
@@ -207,25 +263,47 @@ def siapkan_database():
     aman dilanjutkan ke jendela aplikasi.
     """
     try:
+        logger.info(
+            "Mulai: frozen=%s, bundel=%s, target_host=%s:%s",
+            getattr(sys, "frozen", False),
+            folder_bundel(),
+            DB_HOST,
+            DB_PORT,
+        )
         # --- Tahap 1: pastikan server hidup -----------------------
         if not server_hidup():
+            if getattr(sys, "frozen", False):
+                # Mesin disalin ke folder data agar tidak berjalan dari
+                # folder ekstraksi sementara yang dihapus tiap ditutup.
+                tujuan_mesin = folder_data() / "mysql"
+                logger.info("Menyalin mesin ke %s", tujuan_mesin)
+                if not _salin_mesin(tujuan_mesin):
+                    return False, (
+                        "Mesin data bawaan tidak ditemukan. Jalankan aplikasi "
+                        "sekali lagi; bila masih gagal, pasang MySQL (mis. "
+                        "Laragon) lalu buka aplikasi."
+                    )
             mysqld = cari_mysqld()
+            logger.info("mysqld: %s", mysqld)
             if mysqld is None:
                 return False, (
-                    "Mesin data bawaan tidak ditemukan pada folder runtime. "
-                    "Nyalakan MySQL (mis. Laragon) lalu buka aplikasi lagi."
+                    "Mesin data bawaan tidak ditemukan. Jalankan aplikasi "
+                    "sekali lagi; bila masih gagal, pasang MySQL (mis. "
+                    "Laragon) lalu buka aplikasi."
                 )
-            datadir = basis_direktori() / "runtime" / "data"
+            datadir = folder_data() / "data"
             if not datadir.exists() and not _inisialisasi_data(mysqld, datadir):
                 return False, (
                     "Persiapan data pertama gagal. Jalankan aplikasi sekali "
-                    "lagi; bila masih gagal, periksa runtime/mysqld.log."
+                    "lagi; bila masih gagal, periksa mysqld.log pada folder "
+                    "data aplikasi."
                 )
             _hidupkan_server(mysqld, datadir)
             if not tunggu_server():
                 return False, (
                     "Mesin data belum merespons. Tunggu sejenak lalu buka "
-                    "aplikasi lagi (periksa runtime/mysqld.log)."
+                    "aplikasi lagi (periksa mysqld.log pada folder data "
+                    "aplikasi)."
                 )
             logger.info("Server MySQL bawaan siap.")
 
@@ -238,12 +316,11 @@ def siapkan_database():
             connection_timeout=5,
         )
         try:
-            if not database_terisi(koneksi):
-                if not _impor_database():
-                    return False, (
-                        "Basis data %s belum dapat diisi otomatis. Impor "
-                        "database.sql secara manual (lihat BACA-SAYA)." % DB_NAME
-                    )
+            if not database_terisi(koneksi) and not _impor_database():
+                return False, (
+                    "Basis data %s belum dapat diisi otomatis. Impor "
+                    "database.sql secara manual (lihat BACA-SAYA)." % DB_NAME
+                )
         finally:
             koneksi.close()
         return True, ""

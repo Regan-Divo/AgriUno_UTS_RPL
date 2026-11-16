@@ -10,6 +10,7 @@ import customtkinter as ctk
 
 from config import constants, ui_kit
 
+
 class SplashView(ctk.CTkFrame):
     """Tampilan pembuka berisi animasi logo AgriUno.
 
@@ -101,7 +102,9 @@ class SplashView(ctk.CTkFrame):
         """Memuat frame animasi; emblem tunggal sebagai cadangan."""
         if os.path.isdir(constants.ANIM):
             nama = sorted(
-                n for n in os.listdir(constants.ANIM) if n.startswith("frame_") and n.endswith(".png")
+                n
+                for n in os.listdir(constants.ANIM)
+                if n.startswith("frame_") and n.endswith(".png")
             )
             for n in nama:
                 with contextlib.suppress(tk.TclError):

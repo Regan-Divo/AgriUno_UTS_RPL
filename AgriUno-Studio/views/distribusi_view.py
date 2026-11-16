@@ -4,14 +4,12 @@ from tkinter import messagebox
 
 import customtkinter as ctk
 
-import customtkinter as ctk
-
-from config import ui_kit
-from config import constants
+from config import constants, ui_kit
+from config.ui_kit import DialogModal
 from controllers.auth_controller import AuthController
 from controllers.controller import AgriUnoController
-from config.ui_kit import DialogModal
 from views.base_view import HalamanDasar
+
 
 class DistribusiView(HalamanDasar):
     """Master-detail alokasi pengiriman dengan alur status satu-klik."""
@@ -43,7 +41,9 @@ class DistribusiView(HalamanDasar):
         baris_filter.pack(side="right")
         self.chip_filter = {}
         for status in self._FILTER_STATUS:
-            warna_latar, warna_teks = ui_kit.STATUS_WARNA.get(status, (ui_kit.KEPALA_TABEL, ui_kit.REDUP))
+            warna_latar, warna_teks = ui_kit.STATUS_WARNA.get(
+                status, (ui_kit.KEPALA_TABEL, ui_kit.REDUP)
+            )
             b = ctk.CTkButton(
                 baris_filter,
                 text=status,
@@ -214,8 +214,13 @@ class DistribusiView(HalamanDasar):
             ui_kit.tombol(aksi, "Ubah", self._buka_form_ubah, jenis="sekunder", lebar=84).pack(
                 side="right", padx=(0, 8)
             )
-            if AuthController.boleh(self.app.user, "hapus") and data["status_pengiriman"] != constants.STATUS_TERKIRIM:
-                ui_kit.tombol(aksi, "Hapus", self._hapus, jenis="bahaya", lebar=84).pack(side="left")
+            if (
+                AuthController.boleh(self.app.user, "hapus")
+                and data["status_pengiriman"] != constants.STATUS_TERKIRIM
+            ):
+                ui_kit.tombol(aksi, "Hapus", self._hapus, jenis="bahaya", lebar=84).pack(
+                    side="left"
+                )
 
     # --------------------------------------------------------
     def _lanjut_status(self):
@@ -247,7 +252,6 @@ class DistribusiView(HalamanDasar):
             self.terpilih = None
             self._detail_kosong()
         self.muat()
-
 
     # --------------------------------------------------------
     # ALIAS METODE KATALOG KELAS (dokumentasi teknis 4.7)

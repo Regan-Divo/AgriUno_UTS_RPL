@@ -4,13 +4,12 @@ from tkinter import messagebox
 
 import customtkinter as ctk
 
-import customtkinter as ctk
-
 from config import ui_kit
+from config.ui_kit import DialogModal
 from controllers.auth_controller import AuthController
 from controllers.controller import AgriUnoController
-from config.ui_kit import DialogModal
 from views.base_view import HalamanDasar
+
 
 class PetaniView(HalamanDasar):
     """Master-detail data petani."""
@@ -174,7 +173,6 @@ class PetaniView(HalamanDasar):
             self.terpilih = None
             self._detail_kosong()
         self.muat()
-
 
     # --------------------------------------------------------
     # ALIAS METODE KATALOG KELAS (dokumentasi teknis 4.7)

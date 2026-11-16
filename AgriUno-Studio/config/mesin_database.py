@@ -70,9 +70,10 @@ def folder_data():
     repositori.
     """
     if getattr(sys, "frozen", False):
-        dasar = Path(
-            os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData" / "Local"))
-        ) / "AgriUnoStudio"
+        dasar = (
+            Path(os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData" / "Local")))
+            / "AgriUnoStudio"
+        )
     else:
         dasar = Path(__file__).resolve().parent.parent
     dasar.mkdir(parents=True, exist_ok=True)
@@ -225,7 +226,7 @@ def _impor_database():
     if not sumber.is_file() or klien is None or not klien.is_file():
         logger.error("Berkas database.sql atau klien mysql.exe tidak ditemukan.")
         return False
-    with open(sumber, "r", encoding="utf-8") as aliran:
+    with open(sumber, encoding="utf-8") as aliran:
         try:
             hasil = subprocess.run(
                 [
@@ -264,7 +265,10 @@ def siapkan_database():
     try:
         logger.info(
             "Mulai: frozen=%s, bundel=%s, target_host=%s:%s",
-            getattr(sys, "frozen", False), folder_bundel(), DB_HOST, DB_PORT,
+            getattr(sys, "frozen", False),
+            folder_bundel(),
+            DB_HOST,
+            DB_PORT,
         )
         # --- Tahap 1: pastikan server hidup -----------------------
         if not server_hidup():
@@ -312,12 +316,11 @@ def siapkan_database():
             connection_timeout=5,
         )
         try:
-            if not database_terisi(koneksi):
-                if not _impor_database():
-                    return False, (
-                        "Basis data %s belum dapat diisi otomatis. Impor "
-                        "database.sql secara manual (lihat BACA-SAYA)." % DB_NAME
-                    )
+            if not database_terisi(koneksi) and not _impor_database():
+                return False, (
+                    "Basis data %s belum dapat diisi otomatis. Impor "
+                    "database.sql secara manual (lihat BACA-SAYA)." % DB_NAME
+                )
         finally:
             koneksi.close()
         return True, ""

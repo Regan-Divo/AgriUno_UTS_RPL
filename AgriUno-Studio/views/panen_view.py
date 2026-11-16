@@ -5,14 +5,13 @@ from tkinter import messagebox
 
 import customtkinter as ctk
 
-import customtkinter as ctk
-
 from config import ui_kit
+from config.ui_kit import DialogModal
 from controllers.auth_controller import AuthController
 from controllers.controller import AgriUnoController
-from config.ui_kit import DialogModal
 from views.base_view import HalamanDasar
 from views.distribusi_view import DialogFormDistribusi
+
 
 class PanenView(HalamanDasar):
     """Master-detail lot setoran panen beserta sisa stok."""
@@ -32,7 +31,10 @@ class PanenView(HalamanDasar):
         kepala = ctk.CTkFrame(kartu_tabel, fg_color="transparent")
         kepala.pack(fill="x", padx=20, pady=(16, 4))
         ctk.CTkLabel(
-            kepala, text="Daftar Lot Setoran", font=(ui_kit.FONT, 13, "bold"), text_color=ui_kit.TEKS
+            kepala,
+            text="Daftar Lot Setoran",
+            font=(ui_kit.FONT, 13, "bold"),
+            text_color=ui_kit.TEKS,
         ).pack(side="left")
 
         kolom = (
@@ -200,7 +202,6 @@ class PanenView(HalamanDasar):
     def _alokasikan(self):
         """Membuka dialog alokasi dengan lot ini terpilih lebih dulu."""
         DialogFormDistribusi(self.app, id_panen_awal=self.terpilih, on_selesai=self._setelah_simpan)
-
 
     # --------------------------------------------------------
     # ALIAS METODE KATALOG KELAS (dokumentasi teknis 4.7)

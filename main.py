@@ -73,7 +73,6 @@ class AgriUnoApp(ctk.CTk):
         self.geometry("%dx%d" % WIN_MAIN)
         self.minsize(1080, 640)
 
-
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 

@@ -1,13 +1,11 @@
 """Model rekapitulasi angka untuk kartu KPI Dashboard."""
 
 import logging
-
 from decimal import Decimal
 
+from config.database import DatabaseTidakTersedia, kursor
 from models.base_model import ke_decimal
 
-
-from config.database import DatabaseTidakTersedia, kursor
 logger = logging.getLogger(__name__)
 
 

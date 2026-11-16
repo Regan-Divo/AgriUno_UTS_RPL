@@ -208,7 +208,8 @@ class TestPetani:
                 AuthController, "boleh", staticmethod(lambda cap: cap == "bisa_kelola_petani")
             )
             mp.setattr(
-                PetaniModel, "delete",
+                PetaniModel,
+                "delete",
                 staticmethod(lambda *a, **k: pytest.fail("Model tidak boleh dipanggil")),
             )
             berhasil, pesan = AgriUnoController.hapus_petani(1)
@@ -223,7 +224,8 @@ class TestPetani:
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(AuthController, "boleh", staticmethod(lambda cap: False))
             mp.setattr(
-                PanenModel, "delete",
+                PanenModel,
+                "delete",
                 staticmethod(lambda *a, **k: pytest.fail("Model tidak boleh dipanggil")),
             )
             berhasil, pesan = AgriUnoController.hapus_panen(1)
@@ -238,7 +240,8 @@ class TestPetani:
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(AuthController, "boleh", staticmethod(lambda cap: False))
             mp.setattr(
-                DistribusiModel, "delete",
+                DistribusiModel,
+                "delete",
                 staticmethod(lambda *a, **k: pytest.fail("Model tidak boleh dipanggil")),
             )
             berhasil, pesan = AgriUnoController.hapus_distribusi(1)

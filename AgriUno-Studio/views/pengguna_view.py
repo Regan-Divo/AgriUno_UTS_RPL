@@ -3,8 +3,6 @@
 import customtkinter as ctk
 
 from config import ui_kit
-from controllers.auth_controller import AuthController
-from controllers.controller import AgriUnoController
 from controllers.user_controller import UserController
 from models.user_model import UserModel
 from views.base_view import HalamanDasar
@@ -47,7 +45,10 @@ class PenggunaView(HalamanDasar):
         kepala = ctk.CTkFrame(kartu_tabel, fg_color="transparent")
         kepala.pack(fill="x", padx=20, pady=(16, 4))
         ctk.CTkLabel(
-            kepala, text="Daftar Akun Pengguna", font=(ui_kit.FONT, 13, "bold"), text_color=ui_kit.TEKS
+            kepala,
+            text="Daftar Akun Pengguna",
+            font=(ui_kit.FONT, 13, "bold"),
+            text_color=ui_kit.TEKS,
         ).pack(side="left")
 
         kolom = (
@@ -165,9 +166,9 @@ class PenggunaView(HalamanDasar):
         ui_kit.tombol(aksi, "Hapus", self._hapus, jenis="bahaya", lebar=90).pack(
             side="left", padx=(0, 8)
         )
-        ui_kit.tombol(
-            aksi, "Reset Sandi", self._reset_sandi, jenis="sekunder", lebar=110
-        ).pack(side="left")
+        ui_kit.tombol(aksi, "Reset Sandi", self._reset_sandi, jenis="sekunder", lebar=110).pack(
+            side="left"
+        )
 
     # --------------------------------------------------------
     def _ubah_profil(self):
@@ -198,7 +199,9 @@ class PenggunaView(HalamanDasar):
         if not data:
             return
         if self.terpilih == self.app.user.get("id_user"):
-            ui_kit.toast(self.app, "Akun yang sedang digunakan tidak dapat dinonaktifkan!", jenis="galat")
+            ui_kit.toast(
+                self.app, "Akun yang sedang digunakan tidak dapat dinonaktifkan!", jenis="galat"
+            )
             return
         aktif = not int(data["is_active"] or 0)
         ok, pesan = (
@@ -227,9 +230,7 @@ class PenggunaView(HalamanDasar):
         data = self._cari_data()
         if not data:
             return
-        ok, pesan = UserModel.change_password(
-            {"id_user": self.terpilih}, baru, baru, baru
-        )
+        ok, pesan = UserModel.change_password({"id_user": self.terpilih}, baru, baru, baru)
         ui_kit.toast(self.app, pesan, jenis="sukses" if ok else "galat")
         self.muat()
 

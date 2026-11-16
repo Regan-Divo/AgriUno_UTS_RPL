@@ -6,6 +6,7 @@ from config import ui_kit
 from controllers.auth_controller import AuthController
 from views.register_view import RegisterView
 
+
 class LoginView(ctk.CTkFrame):
     """Layar masuk split-screen di dalam jendela induk."""
 
@@ -31,9 +32,9 @@ class LoginView(ctk.CTkFrame):
 
         if self.logo:
             ctk.CTkLabel(dalam, image=self.logo, text="").pack(anchor="w", pady=(8, 12))
-        ctk.CTkLabel(dalam, text="AgriUno", font=(ui_kit.FONT, 30, "bold"), text_color="white").pack(
-            anchor="w"
-        )
+        ctk.CTkLabel(
+            dalam, text="AgriUno", font=(ui_kit.FONT, 30, "bold"), text_color="white"
+        ).pack(anchor="w")
         ctk.CTkLabel(
             dalam,
             text="Edisi Studio — antarmuka baru untuk pengelolaan hasil panen.",

@@ -4,12 +4,10 @@ import tkinter as tk
 
 import customtkinter as ctk
 
-import customtkinter as ctk
-
-from config import ui_kit
-from config import constants
-from controllers.auth_controller import AuthController
+from config import constants, ui_kit
 from config.ui_kit import DialogModal
+from controllers.auth_controller import AuthController
+
 
 class RegisterView(DialogModal):
     """Dialog pendaftaran akun khusus (peran operator/petani)."""
@@ -27,7 +25,9 @@ class RegisterView(DialogModal):
             bingkai, "Nama Lengkap", "Contoh: Budi Santoso", lebar=480
         )
         kolom_nama.pack(fill="x", pady=(14, 0))
-        kolom_user, self.e_user = ui_kit.bidang(bingkai, "Username", "Minimal 4 karakter", lebar=480)
+        kolom_user, self.e_user = ui_kit.bidang(
+            bingkai, "Username", "Minimal 4 karakter", lebar=480
+        )
         kolom_user.pack(fill="x", pady=(10, 0))
 
         baris = ctk.CTkFrame(bingkai, fg_color="transparent")

@@ -144,15 +144,29 @@ class DashboardView(ctk.CTkFrame):
             baris = ctk.CTkFrame(kartu_progres, fg_color="transparent")
             baris.pack(fill="x", padx=20, pady=5)
             ctk.CTkLabel(
-                baris, text=label_k, font=(ui_kit.FONT, 11), text_color=ui_kit.REDUP, width=190, anchor="w"
+                baris,
+                text=label_k,
+                font=(ui_kit.FONT, 11),
+                text_color=ui_kit.REDUP,
+                width=190,
+                anchor="w",
             ).pack(side="left")
             bar = ctk.CTkProgressBar(
-                baris, height=8, corner_radius=4, progress_color=ui_kit.HIJAU_HOVER, fg_color="#e5ece7"
+                baris,
+                height=8,
+                corner_radius=4,
+                progress_color=ui_kit.HIJAU_HOVER,
+                fg_color="#e5ece7",
             )
             bar.set(0)
             bar.pack(side="left", fill="x", expand=True, padx=10)
             nilai = ctk.CTkLabel(
-                baris, text="0%", font=(ui_kit.FONT, 11, "bold"), text_color=ui_kit.HIJAU, width=42, anchor="e"
+                baris,
+                text="0%",
+                font=(ui_kit.FONT, 11, "bold"),
+                text_color=ui_kit.HIJAU,
+                width=42,
+                anchor="e",
             )
             nilai.pack(side="right")
             self.progres[kunci] = (bar, nilai)
@@ -213,7 +227,12 @@ class DashboardView(ctk.CTkFrame):
         baris = ctk.CTkFrame(induk, fg_color="transparent")
         baris.pack(fill="x", padx=20, pady=5)
         ctk.CTkLabel(
-            baris, text=judul_k, font=(ui_kit.FONT, 11), text_color=ui_kit.REDUP, width=190, anchor="w"
+            baris,
+            text=judul_k,
+            font=(ui_kit.FONT, 11),
+            text_color=ui_kit.REDUP,
+            width=190,
+            anchor="w",
         ).pack(side="left")
         bar = ctk.CTkProgressBar(
             baris, height=8, corner_radius=4, progress_color=ui_kit.HIJAU_HOVER, fg_color="#e5ece7"
@@ -221,7 +240,12 @@ class DashboardView(ctk.CTkFrame):
         bar.set(0)
         bar.pack(side="left", fill="x", expand=True, padx=10)
         nilai = ctk.CTkLabel(
-            baris, text="0%", font=(ui_kit.FONT, 11, "bold"), text_color=ui_kit.HIJAU, width=42, anchor="e"
+            baris,
+            text="0%",
+            font=(ui_kit.FONT, 11, "bold"),
+            text_color=ui_kit.HIJAU,
+            width=42,
+            anchor="e",
         )
         nilai.pack(side="right")
         return bar, nilai
@@ -290,7 +314,10 @@ class DashboardView(ctk.CTkFrame):
                 baris = ctk.CTkFrame(self.kartu_komo_isi, fg_color="transparent")
                 baris.pack(fill="x", pady=6)
                 ctk.CTkLabel(
-                    baris, text=item["jenis_komoditas"], font=(ui_kit.FONT, 11), text_color=ui_kit.TEKS
+                    baris,
+                    text=item["jenis_komoditas"],
+                    font=(ui_kit.FONT, 11),
+                    text_color=ui_kit.TEKS,
                 ).pack(anchor="w")
                 bar = ctk.CTkProgressBar(
                     baris,
@@ -302,7 +329,10 @@ class DashboardView(ctk.CTkFrame):
                 bar.set(float(item["berat"] or 0) / terbesar)
                 bar.pack(fill="x", pady=(2, 0))
                 ctk.CTkLabel(
-                    baris, text="%.2f Kg" % float(item["berat"]), font=(ui_kit.FONT, 9), text_color=ui_kit.REDUP
+                    baris,
+                    text="%.2f Kg" % float(item["berat"]),
+                    font=(ui_kit.FONT, 9),
+                    text_color=ui_kit.REDUP,
                 ).pack(anchor="w")
         else:
             ui_kit.status_kosong(self.kartu_komo_isi, "Belum ada data panen.")
@@ -319,7 +349,9 @@ class DashboardView(ctk.CTkFrame):
             self.isi_aktivitas.grid_columnconfigure(kolom, weight=1)
         for idx, item in enumerate(aktivitas):
             jenis = item["jenis"]
-            latar, warna = ui_kit.STATUS_WARNA.get(item["status"], (ui_kit.KEPALA_TABEL, ui_kit.REDUP))
+            latar, warna = ui_kit.STATUS_WARNA.get(
+                item["status"], (ui_kit.KEPALA_TABEL, ui_kit.REDUP)
+            )
             baris = ctk.CTkFrame(
                 self.isi_aktivitas, fg_color=ui_kit.ZEBRA if idx % 2 else "white", corner_radius=10
             )
@@ -340,7 +372,10 @@ class DashboardView(ctk.CTkFrame):
             ).pack(side="left", fill="x", expand=True)
 
             ctk.CTkLabel(
-                baris, text=str(item["nama_petani"] or ""), font=(ui_kit.FONT, 10), text_color=ui_kit.REDUP
+                baris,
+                text=str(item["nama_petani"] or ""),
+                font=(ui_kit.FONT, 10),
+                text_color=ui_kit.REDUP,
             ).pack(side="left", padx=8)
 
             if jenis == "distribusi":

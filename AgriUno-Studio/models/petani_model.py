@@ -2,12 +2,12 @@
 
 import logging
 
-from models.base_model import normalkan
-
 import mysql.connector
 
 from config.constants import boleh
 from config.database import DatabaseTidakTersedia, kursor
+from models.base_model import normalkan
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,7 +36,6 @@ class PetaniModel:
             logger.error("daftar_petani: %s", exc)
             return []
 
-
     @staticmethod
     def get_options():
         """Peta id -> data petani untuk dropdown (urut id)."""
@@ -49,7 +48,6 @@ class PetaniModel:
         except DatabaseTidakTersedia as exc:
             logger.error("peta_petani: %s", exc)
             return []
-
 
     @staticmethod
     def simpan(user, id_petani, nama, lokasi, komoditas):
@@ -96,10 +94,12 @@ class PetaniModel:
             return False, "Koneksi database gagal: %s" % exc
         except mysql.connector.Error as err:
             if err.errno == 1451:
-                return False, "Petani masih memiliki riwayat setoran dan tidak dapat diubah/dihapus."
+                return (
+                    False,
+                    "Petani masih memiliki riwayat setoran dan tidak dapat diubah/dihapus.",
+                )
             logger.error("simpan_petani: %s", err)
             return False, "Terjadi kesalahan database: %s" % err
-
 
     @staticmethod
     def hapus(user, id_petani):
@@ -120,7 +120,6 @@ class PetaniModel:
                 )
             logger.error("hapus_petani: %s", err)
             return False, "Terjadi kesalahan database: %s" % err
-
 
     # ========================================================
     # METODE KATALOG KELAS (dokumentasi teknis 4.7)

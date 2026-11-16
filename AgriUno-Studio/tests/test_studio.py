@@ -102,7 +102,6 @@ def test_label_peran_terpetakan():
 
 def test_peran_admin_tidak_terdaftar_pada_registrasi():
     """Registrasi mandiri tidak menawarkan peran admin (BR-08)."""
-    from models.user_model import UserModel as UM
 
     assert ROLE_ADMIN not in (ROLE_OPERATOR, ROLE_PETANI)
 

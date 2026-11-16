@@ -173,9 +173,7 @@ class AgriUnoController:
         if not id_petani:
             return False, "Pilih data petani yang ingin dihapus!"
         if not AuthController.boleh("bisa_hapus_data"):
-            return False, (
-                "Penghapusan data hanya dapat dilakukan oleh Administrator!"
-            )
+            return False, ("Penghapusan data hanya dapat dilakukan oleh Administrator!")
         return PetaniModel.delete(id_petani)
 
     # ========================================================
@@ -282,9 +280,7 @@ class AgriUnoController:
         if not id_panen:
             return False, "Pilih data panen yang ingin dihapus!"
         if not AuthController.boleh("bisa_hapus_data"):
-            return False, (
-                "Penghapusan data hanya dapat dilakukan oleh Administrator!"
-            )
+            return False, ("Penghapusan data hanya dapat dilakukan oleh Administrator!")
         return PanenModel.delete(id_panen)
 
     # ========================================================
@@ -391,9 +387,7 @@ class AgriUnoController:
         if not id_distribusi:
             return False, "Pilih data distribusi yang ingin dihapus!"
         if not AuthController.boleh("bisa_hapus_data"):
-            return False, (
-                "Penghapusan data hanya dapat dilakukan oleh Administrator!"
-            )
+            return False, ("Penghapusan data hanya dapat dilakukan oleh Administrator!")
         return DistribusiModel.delete(id_distribusi)
 
     # ========================================================

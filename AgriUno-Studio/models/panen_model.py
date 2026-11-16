@@ -1,15 +1,14 @@
 """Model lot setoran panen (tabel inventori_panen)."""
 
 import logging
-
 from datetime import datetime
-
-from models.base_model import ke_decimal, normalkan
 
 import mysql.connector
 
 from config.constants import boleh
 from config.database import DatabaseTidakTersedia, kursor
+from models.base_model import ke_decimal, normalkan
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,7 +24,6 @@ class PanenModel:
         "LEFT JOIN distribusi d ON d.id_panen = p.id_panen "
         "LEFT JOIN petani pt ON pt.id_petani = p.id_petani "
     )
-
 
     @staticmethod
     def get_all(cari=""):
@@ -46,14 +44,18 @@ class PanenModel:
             logger.error("daftar_panen: %s", exc)
             return []
 
-
     @staticmethod
     def simpan(user, id_panen, id_petani, jenis, berat, tanggal):
         """Menyimpan lot setoran panen baru/ubah dengan validasi lengkap."""
         if not boleh(user, "kelola"):
             return False, "Peran Anda tidak memiliki hak mengelola data!"
         jenis = normalkan(jenis)
-        if not id_petani or not jenis or not str(berat or "").strip() or not str(tanggal or "").strip():
+        if (
+            not id_petani
+            or not jenis
+            or not str(berat or "").strip()
+            or not str(tanggal or "").strip()
+        ):
             return False, "Seluruh kolom setoran panen wajib diisi!"
         if len(jenis) > 100:
             return False, "Jenis komoditas maksimal 100 karakter!"
@@ -110,7 +112,6 @@ class PanenModel:
             logger.error("simpan_panen: %s", err)
             return False, "Terjadi kesalahan database: %s" % err
 
-
     @staticmethod
     def hapus(user, id_panen):
         """Menghapus lot panen (hanya Administrator; ditolak bila terikat)."""
@@ -127,7 +128,6 @@ class PanenModel:
                 return False, "Lot masih memiliki alokasi distribusi (BR-03)."
             logger.error("hapus_panen: %s", err)
             return False, "Terjadi kesalahan database: %s" % err
-
 
     # ========================================================
     # METODE KATALOG KELAS (dokumentasi teknis 4.7)
