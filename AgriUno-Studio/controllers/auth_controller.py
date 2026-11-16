@@ -8,7 +8,7 @@ pengguna, sesi pengguna, dan pemeriksaan hak akses berbasis peran
 
 from config import constants
 from controllers.user_controller import UserController
-from models.user_model import UserModel
+from AgriUno_UTS_RPL.models.user_model import UserModel
 
 
 class Session:

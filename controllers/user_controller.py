@@ -14,7 +14,7 @@ import logging
 
 from config.constants import ROLE_ADMIN
 from controllers.auth_controller import AuthController
-from models.user_model import UserModel
+from AgriUno_UTS_RPL.models.user_model import UserModel
 
 logger = logging.getLogger(__name__)
 

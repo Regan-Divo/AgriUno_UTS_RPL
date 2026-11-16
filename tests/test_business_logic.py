@@ -25,7 +25,7 @@ class TestPetani:
 
     def test_tambah_petani_gagal_bila_kolom_kosong(self):
         """Ketiga kolom wajib diisi."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "insert", staticmethod(lambda *a, **k: True))
@@ -35,7 +35,7 @@ class TestPetani:
 
     def test_tambah_petani_gagal_bila_nama_hanya_spasi(self):
         """Spasi saja dianggap kosong."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "insert", staticmethod(lambda *a, **k: True))
@@ -44,7 +44,7 @@ class TestPetani:
 
     def test_tambah_petani_berhasil(self):
         """Data lengkap harus berhasil disimpan."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "insert", staticmethod(lambda *a, **k: True))
@@ -56,7 +56,7 @@ class TestPetani:
 
     def test_tambah_petani_menolak_nama_terlalu_panjang(self):
         """Panjang teks dibatasi sesuai kolom basis data."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "insert", staticmethod(lambda *a, **k: True))
@@ -66,7 +66,7 @@ class TestPetani:
 
     def test_update_petani_menolak_kolom_kosong(self):
         """Pembaruan juga memvalidasi kelengkapan kolom."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "update", staticmethod(lambda *a, **k: True))
@@ -103,7 +103,7 @@ class TestPetani:
 
     def test_tambah_petani_menolak_data_identik(self):
         """BR-11: kombinasi nama, lokasi, dan komoditas wajib unik."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "insert", staticmethod(lambda *a, **k: True))
@@ -121,7 +121,7 @@ class TestPetani:
 
     def test_tambah_petani_duplikat_tidak_peka_kapitalisasi(self):
         """BR-11: "JERUK" dianggap sama dengan "Jeruk"."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "insert", staticmethod(lambda *a, **k: True))
@@ -136,7 +136,7 @@ class TestPetani:
 
     def test_update_petani_mengizinkan_data_sendiri(self):
         """BR-11: pembaruan tanpa perubahan tidak dianggap duplikat."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "exists", staticmethod(lambda *a, **k: True))
@@ -154,7 +154,7 @@ class TestPetani:
 
     def test_update_petani_menolak_duplikat_petani_lain(self):
         """BR-11: pembaruan tidak boleh meniru data petani lain."""
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PetaniModel, "exists", staticmethod(lambda *a, **k: True))
@@ -176,8 +176,8 @@ class TestPetani:
 
     def test_tambah_panen_menormalkan_jenis_komoditas(self):
         """Jenis komoditas dinormalkan sebelum disimpan (BR-11)."""
-        from models.panen_model import PanenModel
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         tersimpan = {}
 
@@ -201,15 +201,14 @@ class TestPetani:
     def test_hapus_petani_ditolak_tanpa_hak_hapus(self):
         """RBAC: peran tanpa hak hapus (operator/petani) ditolak."""
         from controllers.auth_controller import AuthController
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
                 AuthController, "boleh", staticmethod(lambda cap: cap == "bisa_kelola_petani")
             )
             mp.setattr(
-                PetaniModel,
-                "delete",
+                PetaniModel, "delete",
                 staticmethod(lambda *a, **k: pytest.fail("Model tidak boleh dipanggil")),
             )
             berhasil, pesan = AgriUnoController.hapus_petani(1)
@@ -219,13 +218,12 @@ class TestPetani:
     def test_hapus_panen_ditolak_tanpa_hak_hapus(self):
         """RBAC: penghapusan lot panan juga dibatasi Administrator."""
         from controllers.auth_controller import AuthController
-        from models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(AuthController, "boleh", staticmethod(lambda cap: False))
             mp.setattr(
-                PanenModel,
-                "delete",
+                PanenModel, "delete",
                 staticmethod(lambda *a, **k: pytest.fail("Model tidak boleh dipanggil")),
             )
             berhasil, pesan = AgriUnoController.hapus_panen(1)
@@ -235,13 +233,12 @@ class TestPetani:
     def test_hapus_distribusi_ditolak_tanpa_hak_hapus(self):
         """RBAC: penghapusan alokasi juga dibatasi Administrator."""
         from controllers.auth_controller import AuthController
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(AuthController, "boleh", staticmethod(lambda cap: False))
             mp.setattr(
-                DistribusiModel,
-                "delete",
+                DistribusiModel, "delete",
                 staticmethod(lambda *a, **k: pytest.fail("Model tidak boleh dipanggil")),
             )
             berhasil, pesan = AgriUnoController.hapus_distribusi(1)
@@ -257,7 +254,7 @@ class TestPanen:
 
     def test_tambah_panen_gagal_bila_kolom_kosong(self):
         """Seluruh kolom wajib diisi."""
-        from models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "insert", staticmethod(lambda *a, **k: True))
@@ -267,7 +264,7 @@ class TestPanen:
 
     def test_tambah_panen_menolak_berat_non_numerik(self):
         """Berat harus berupa angka."""
-        from models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "insert", staticmethod(lambda *a, **k: True))
@@ -277,7 +274,7 @@ class TestPanen:
 
     def test_tambah_panen_menolak_berat_nol_atau_negatif(self):
         """Berat harus lebih besar dari nol."""
-        from models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "insert", staticmethod(lambda *a, **k: True))
@@ -287,7 +284,7 @@ class TestPanen:
 
     def test_tambah_panen_menolak_tanggal_tidak_valid(self):
         """Tanggal harus berformat YYYY-MM-DD."""
-        from models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "insert", staticmethod(lambda *a, **k: True))
@@ -297,7 +294,7 @@ class TestPanen:
 
     def test_tambah_panen_menolak_tanggal_masa_depan(self):
         """Tanggal panen tidak boleh berada di masa depan."""
-        from models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "insert", staticmethod(lambda *a, **k: True))
@@ -307,8 +304,8 @@ class TestPanen:
 
     def test_tambah_panen_menolak_petani_tidak_terdaftar(self):
         """BR-01: penyetor wajib terdaftar pada tabel petani."""
-        from models.panen_model import PanenModel
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "insert", staticmethod(lambda *a, **k: True))
@@ -319,8 +316,8 @@ class TestPanen:
 
     def test_tambah_panen_berhasil(self):
         """Data lengkap dan valid harus berhasil disimpan."""
-        from models.panen_model import PanenModel
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "insert", staticmethod(lambda *a, **k: True))
@@ -335,8 +332,8 @@ class TestPanen:
         """BR-02: berat baru tidak boleh lebih kecil dari total alokasi."""
         from decimal import Decimal
 
-        from models.panen_model import PanenModel
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "update", staticmethod(lambda *a, **k: True))
@@ -355,8 +352,8 @@ class TestPanen:
         """Pembaruan dengan berat yang wajar harus berhasil."""
         from decimal import Decimal
 
-        from models.panen_model import PanenModel
-        from models.petani_model import PetaniModel
+        from AgriUno_UTS_RPL.models.panen_model import PanenModel
+        from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(PanenModel, "update", staticmethod(lambda *a, **k: True))
@@ -380,7 +377,7 @@ class TestDistribusi:
 
     def test_tambah_distribusi_gagal_bila_kolom_kosong(self):
         """Seluruh kolom wajib diisi."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -392,7 +389,7 @@ class TestDistribusi:
 
     def test_tambah_distribusi_menolak_jumlah_non_numerik(self):
         """Jumlah kirim harus berupa angka."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -404,7 +401,7 @@ class TestDistribusi:
 
     def test_tambah_distribusi_menolak_jumlah_nol(self):
         """Jumlah kirim harus lebih dari nol."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -416,7 +413,7 @@ class TestDistribusi:
 
     def test_tambah_distribusi_meneruskan_gagal_validasi_stok(self):
         """Pesan penolakan dari model harus diteruskan ke pengguna."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -430,7 +427,7 @@ class TestDistribusi:
 
     def test_tambah_distribusi_berhasil_dengan_status_awal(self):
         """BR-04: status awal alokasi harus "Diproses"."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         captured = {}
 
@@ -447,7 +444,7 @@ class TestDistribusi:
 
     def test_update_distribusi_menolak_status_tidak_dikenal(self):
         """BR-05: hanya tiga nilai status baku yang diterima."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -461,7 +458,7 @@ class TestDistribusi:
 
     def test_update_distribusi_menolak_jumlah_nol(self):
         """Jumlah kirim harus lebih dari nol."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -483,7 +480,7 @@ class TestDistribusi:
 
     def test_ubah_status_menolak_alokasi_terkunci(self):
         """BR-09: alokasi berstatus 'Terkirim' bersifat final."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -505,7 +502,7 @@ class TestDistribusi:
 
     def test_ubah_status_berhasil(self):
         """Perubahan status yang sah harus berhasil."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(
@@ -542,7 +539,7 @@ class TestStatusPengiriman:
     def test_status_baku_hanya_tiga(self):
         """Hanya tiga nilai status yang sah."""
         from config.constants import STATUS_PENGIRIMAN
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         assert len(STATUS_PENGIRIMAN) == 3
         assert STATUS_DIPROSES in STATUS_PENGIRIMAN
@@ -552,7 +549,7 @@ class TestStatusPengiriman:
 
     def test_status_terkunci_adalah_terkirim(self):
         """Status final hanya 'Terkirim' (BR-09)."""
-        from models.distribusi_model import DistribusiModel
+        from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
 
         assert DistribusiModel.is_locked(STATUS_TERKIRIM) is True
         assert DistribusiModel.is_locked(STATUS_DIPROSES) is False

@@ -21,7 +21,7 @@ import pytest
 
 from config.constants import ROLE_ADMIN, ROLE_OPERATOR, ROLE_PETANI
 from controllers.auth_controller import AuthController, Session
-from models.user_model import UserModel
+from AgriUno_UTS_RPL.models.user_model import UserModel
 
 
 # ============================================================
@@ -172,7 +172,7 @@ class TestValidasiRegistrasi:
     def _patch(mp, username_taken=False):
         """Menyiapkan tiruan basis data untuk pengujian registrasi."""
         from config.database import DatabaseConnection
-        from models.base_model import BaseModel
+        from AgriUno_UTS_RPL.models.base_model import BaseModel
 
         @contextmanager
         def fake_cursor(dictionary=False, commit=False):

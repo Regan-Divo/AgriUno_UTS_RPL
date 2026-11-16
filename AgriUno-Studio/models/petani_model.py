@@ -6,7 +6,7 @@ import mysql.connector
 
 from config.constants import boleh
 from config.database import DatabaseTidakTersedia, kursor
-from models.base_model import normalkan
+from AgriUno_UTS_RPL.models.base_model import normalkan
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ import logging
 from decimal import Decimal
 
 from config.database import DatabaseTidakTersedia, kursor
-from models.base_model import ke_decimal
+from AgriUno_UTS_RPL.models.base_model import ke_decimal
 
 logger = logging.getLogger(__name__)
 

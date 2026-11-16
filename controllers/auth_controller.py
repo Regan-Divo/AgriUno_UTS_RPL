@@ -28,7 +28,7 @@ from config.constants import (
     ROLE_CAPABILITIES,
     ROLE_PETANI,
 )
-from models.user_model import UserModel
+from AgriUno_UTS_RPL.models.user_model import UserModel
 
 logger = logging.getLogger(__name__)
 

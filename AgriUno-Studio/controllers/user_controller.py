@@ -7,7 +7,7 @@ ubah kata sandi, aktif/nonaktifkan, dan hapus akun.
 """
 
 from config.constants import ROLE_ADMIN
-from models.user_model import UserModel
+from AgriUno_UTS_RPL.models.user_model import UserModel
 
 
 class UserController:

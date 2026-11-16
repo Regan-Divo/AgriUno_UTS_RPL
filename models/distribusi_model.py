@@ -26,7 +26,7 @@ import mysql.connector
 
 from config.constants import STATUS_DIPROSES, STATUS_PENGIRIMAN, STATUS_TERKUNCI
 from config.database import DatabaseConnection, DatabaseUnavailable
-from models.base_model import BaseModel
+from AgriUno_UTS_RPL.models.base_model import BaseModel
 
 logger = logging.getLogger(__name__)
 

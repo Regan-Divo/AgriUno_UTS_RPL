@@ -14,7 +14,7 @@ import logging
 import mysql.connector
 
 from config.database import DatabaseConnection, DatabaseUnavailable
-from models.base_model import BaseModel
+from AgriUno_UTS_RPL.models.base_model import BaseModel
 
 logger = logging.getLogger(__name__)
 

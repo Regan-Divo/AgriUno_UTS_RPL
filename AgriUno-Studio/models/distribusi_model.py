@@ -6,7 +6,7 @@ import mysql.connector
 
 from config.constants import ALUR_STATUS, STATUS_DAFTAR, STATUS_DIPROSES, STATUS_TERKIRIM, boleh
 from config.database import DatabaseTidakTersedia, kursor
-from models.base_model import ke_decimal
+from AgriUno_UTS_RPL.models.base_model import ke_decimal
 
 logger = logging.getLogger(__name__)
 
