@@ -1,0 +1,61 @@
+# ===========================================================
+# KONFIGURASI PEMERIKSAAN KUALITAS KODE - AGRIUNO
+# ===========================================================
+# Pemeriksaan dijalankan secara otomatis oleh pipeline GitHub
+# Actions pada setiap perubahan kode:
+#
+#     ruff check .
+#     ruff format --check .
+#
+# Rujukan: https://docs.astral.sh/ruff/configuration/
+# ===========================================================
+
+line-length = 100
+target-version = "py310"
+extend-exclude = [
+    "venv",
+    "env",
+    "build",
+    "dist",
+    "docs",
+    "assets",
+    "*.egg-info",
+]
+
+[lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "W",    # pycodestyle (peringatan)
+    "I",    # isort (pengurutan impor)
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "UP",   # pyupgrade
+]
+ignore = [
+    # Teks panjang (kueri SQL, narasi laporan) ditulis dengan operator %
+    # agar mudah dibaca multi-baris.
+    "UP031",
+    # Operator % masih dipakai pada string SQL yang disusun bertahap.
+    "UP032",
+    # Baris kosong excessive pada modul Reports.
+    "E303",
+    "E306",
+]
+
+[lint.per-file-ignores]
+# Berkas pembangun diagram dan laporan memang sengaja memiliki
+# banyak impor yang hanya dipakai sebagai konstanta gaya.
+"tools/diagram_*.py" = ["F401"]
+"tools/build_report*.py" = ["F401"]
+# Modul konten laporan memuat teks narasi panjang yang ditulis
+# sebagai satu string agar mudah dibaca dan disunting.
+"tools/report_content*.py" = ["F401", "E501"]
+# Berkas uji pada modul ini memang memeriksa alur eksepsi.
+"tests/*" = ["B011", "SIM117"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
