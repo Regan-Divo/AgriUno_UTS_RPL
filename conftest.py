@@ -6,7 +6,8 @@ Menyediakan fixture bersama untuk seluruh pengujian pada folder
 ``tests/``.
 
 Fixture ``_skip_when_database_unavailable`` dipakai oleh pengujian
-yang ditandai ``@pytest.mark.db``. Pengujian tersebut otomatis
+yang ditandai ``@pytest.mark.db`` (baik pada ``test_model.py`` di root
+maupun berkas di folder ``tests/``). Pengujian tersebut otomatis
 dilewati (skip) apabila server MySQL tidak dapat dihubungi,
 sehingga pipeline CI pada GitHub Actions tetap berjalan hijau
 meskipun runner tidak menyediakan MySQL.
