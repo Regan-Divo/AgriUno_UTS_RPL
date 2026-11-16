@@ -1,4 +1,34 @@
+# Lingkungan virtual Python
 venv/
+env/
+.venv/
+
+# Bytecode Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Hasil pengujian dan cakupan kode
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Hasil pemaketan PyInstaller
+build/
+dist/
+*.manifest
+
+# Editor
 .vscode/
+.idea/
+*.swp
+
+# Sistem operasi
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Berkas sementara
+*.log
+*.tmp

@@ -1,41 +1,165 @@
-from models.petani_model import PetaniModel
-from models.panen_model import PanenModel
+"""
+==========================================================
+PENGUJIAN MODEL AGRIUNO - LAPIS DATA (Modul 4)
+==========================================================
+Pengujian integrasi lapis model terhadap basis data MySQL sungguhan.
+
+Berkas ini menggantikan skrip uji manual versi UTS yang hanya
+menampilkan data ke terminal. Seluruh pengujian pada berkas ini
+memerlukan server MySQL aktif, sehingga ditandai dengan penanda
+``db`` dan otomatis dilewati apabila basis data tidak tersedia::
+
+    pytest -v -m db
+    python test_model.py        # eksekusi langsung sebagai skrip
+"""
+
+import sys
+
+import pytest
+
 from models.distribusi_model import DistribusiModel
+from models.panen_model import PanenModel
+from models.petani_model import PetaniModel
+from models.user_model import UserModel
 
-def test_database_models():
-    print("=== MENJALANKAN PENGUJIAN MODEL (TEST MODEL) ===")
-    
-    # 1. Menguji Model Petani
-    print("\n[1] Menguji PetaniModel.get_all_petani():")
-    try:
-        petani_list = PetaniModel.get_all_petani()
-        print(f"Berhasil! Ditemukan {len(petani_list)} data petani.")
-        for p in petani_list:
-            print(p)
-    except Exception as e:
-        print(f"Gagal memuat data petani: {e}")
 
-    # 2. Menguji Model Inventori Panen
-    print("\n[2] Menguji PanenModel.get_all_panen():")
-    try:
-        panen_list = PanenModel.get_all_panen()
-        print(f"Berhasil! Ditemukan {len(panen_list)} data lot panen.")
-        for pa in panen_list:
-            print(pa)
-    except Exception as e:
-        print(f"Gagal memuat data panen: {e}")
+@pytest.mark.db
+class TestModelPetani:
+    """Pengujian integrasi tabel ``petani``."""
 
-    # 3. Menguji Model Distribusi
-    print("\n[3] Menguji DistribusiModel.get_all_distribusi():")
+    def test_get_all_mengembalikan_daftar(self):
+        """Tabel petani harus dapat dibaca dan menghasilkan daftar baris."""
+        data = PetaniModel.get_all()
+        assert isinstance(data, list)
+        for baris in data:
+            assert "id_petani" in baris
+            assert "nama_petani" in baris
+            assert "lokasi_lahan" in baris
+            assert "komoditas_utama" in baris
+
+    def test_jumlah_petani_konsisten(self):
+        """Jumlah baris hasil pembacaan harus sama dengan hasil COUNT()."""
+        assert len(PetaniModel.get_all()) == PetaniModel.count()
+
+
+@pytest.mark.db
+class TestModelPanen:
+    """Pengujian integrasi tabel ``inventori_panen``."""
+
+    def test_get_all_menyertakan_sisa_stok(self):
+        """Setiap lot panen harus menyertakan perhitungan sisa stok."""
+        data = PanenModel.get_all()
+        assert isinstance(data, list)
+        for baris in data:
+            assert "jumlah_berat" in baris
+            assert "sisa_stok" in baris
+
+    def test_sisa_stok_tidak_pernah_negatif(self):
+        """Sisa stok tidak boleh bernilai negatif (BR-02)."""
+        for baris in PanenModel.get_all():
+            assert float(baris["sisa_stok"]) >= 0
+
+
+@pytest.mark.db
+class TestModelDistribusi:
+    """Pengujian integrasi tabel ``distribusi``."""
+
+    def test_get_all_mengembalikan_daftar(self):
+        """Tabel distribusi harus dapat dibaca dan menghasilkan daftar baris."""
+        data = DistribusiModel.get_all()
+        assert isinstance(data, list)
+        for baris in data:
+            assert "id_distribusi" in baris
+            assert "status_pengiriman" in baris
+
+    def test_status_hanya_nilai_baku(self):
+        """Setiap status harus merupakan salah satu dari tiga nilai baku (BR-05)."""
+        from config.constants import STATUS_PENGIRIMAN
+
+        for baris in DistribusiModel.get_all():
+            assert baris["status_pengiriman"] in STATUS_PENGIRIMAN
+
+
+@pytest.mark.db
+class TestModelUser:
+    """Pengujian integrasi tabel ``users``."""
+
+    def test_autentikasi_admin_demo(self):
+        """Akun admin demo harus dapat diautentikasi."""
+        hasil = UserModel.authenticate("admin", "admin123")
+        assert hasil is not None
+        assert hasil["role"] == "admin"
+
+    def test_autentikasi_password_salah_ditolak(self):
+        """Password yang salah harus ditolak."""
+        assert UserModel.authenticate("admin", "passwordsalah") is None
+
+    def test_autentikasi_username_tidak_ada_ditolak(self):
+        """Username yang tidak terdaftar harus ditolak."""
+        assert UserModel.authenticate("tidakada99", "apa_saja") is None
+
+
+def main():
+    """Menjalankan ringkasan manual pengujian model."""
+    print("=" * 66)
+    print("PENGUJIAN MODEL AGRIUNO - LAPIS DATA")
+    print("=" * 66)
+
     try:
-        dist_list = DistribusiModel.get_all_distribusi()
-        print(f"Berhasil! Ditemukan {len(dist_list)} data distribusi.")
-        for d in dist_list:
-            print(d)
-    except Exception as e:
-        print(f"Gagal memuat data distribusi: {e}")
-    
-    print("\n=== PENGUJIAN MODEL SELESAI ===")
+        petani = PetaniModel.get_all()
+        print("\n[1] PetaniModel.get_all()")
+        print("    Berhasil! Ditemukan %d data petani." % len(petani))
+        for baris in petani:
+            print(
+                "      #%s %s (%s)"
+                % (baris["id_petani"], baris["nama_petani"], baris["komoditas_utama"])
+            )
+
+        panen = PanenModel.get_all()
+        print("\n[2] PanenModel.get_all()")
+        print("    Berhasil! Ditemukan %d lot panen." % len(panen))
+        for baris in panen:
+            print(
+                "      #%s %-16s berat=%8s sisa=%8s"
+                % (
+                    baris["id_panen"],
+                    baris["jenis_komoditas"],
+                    baris["jumlah_berat"],
+                    baris["sisa_stok"],
+                )
+            )
+
+        distribusi = DistribusiModel.get_all()
+        print("\n[3] DistribusiModel.get_all()")
+        print("    Berhasil! Ditemukan %d alokasi." % len(distribusi))
+        for baris in distribusi:
+            print(
+                "      #%s lot=%s %-26s %8s Kg [%s]"
+                % (
+                    baris["id_distribusi"],
+                    baris["id_panen"],
+                    baris["tujuan_pengiriman"],
+                    baris["jumlah_dikirim"],
+                    baris["status_pengiriman"],
+                )
+            )
+
+        print("\n[4] UserModel.authenticate('admin', 'admin123')")
+        pengguna = UserModel.authenticate("admin", "admin123")
+        if pengguna:
+            print("    Berhasil! %s (%s)" % (pengguna["full_name"], pengguna["role"]))
+        else:
+            print("    Gagal login. Pastikan database.sql sudah dijalankan.")
+
+        print("\n" + "=" * 66)
+        print("PENGUJIAN MODEL SELESAI")
+        print("=" * 66)
+        return 0
+    except Exception as exc:  # noqa: BLE001
+        print("\nGagal menjalankan pengujian model: %s" % exc)
+        print("Pastikan layanan MySQL pada Laragon sedang aktif.")
+        return 1
+
 
 if __name__ == "__main__":
-    test_database_models()
+    sys.exit(main())
