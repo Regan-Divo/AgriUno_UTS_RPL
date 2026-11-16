@@ -14,20 +14,10 @@ Skenario yang dijaga:
   (bug sebelumnya: aplikasi langsung ter-tutup seluruhnya).
 """
 
-import os
-
 import pytest
 
 import main
 from controllers.auth_controller import AuthController
-
-#: Pengujian antarmuka membutuhkan display. Pada runner Linux headless
-#: (GitHub Actions tanpa X11) pengujian ini otomatis dilewati.
-PERLU_DISPLAY = os.name != "nt" and not (
-    os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
-)
-
-pytestmark = pytest.mark.skipif(PERLU_DISPLAY, reason="Pengujian antarmuka membutuhkan display")
 
 
 class _JendelaPalsu:

@@ -4,7 +4,7 @@ import customtkinter as ctk
 
 from config import ui_kit
 from controllers.user_controller import UserController
-from models.user_model import UserModel
+from AgriUno_UTS_RPL.models.user_model import UserModel
 from views.base_view import HalamanDasar
 
 STATUS_WARNA = {

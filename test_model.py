@@ -17,10 +17,10 @@ import sys
 
 import pytest
 
-from models.distribusi_model import DistribusiModel
-from models.panen_model import PanenModel
-from models.petani_model import PetaniModel
-from models.user_model import UserModel
+from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
+from AgriUno_UTS_RPL.models.panen_model import PanenModel
+from AgriUno_UTS_RPL.models.petani_model import PetaniModel
+from AgriUno_UTS_RPL.models.user_model import UserModel
 
 
 @pytest.mark.db

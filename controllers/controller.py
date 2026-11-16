@@ -26,9 +26,9 @@ from config.constants import (
     STATUS_TERKIRIM,
 )
 from controllers.auth_controller import AuthController
-from models.distribusi_model import DistribusiModel
-from models.panen_model import PanenModel
-from models.petani_model import PetaniModel
+from AgriUno_UTS_RPL.models.distribusi_model import DistribusiModel
+from AgriUno_UTS_RPL.models.panen_model import PanenModel
+from AgriUno_UTS_RPL.models.petani_model import PetaniModel
 
 logger = logging.getLogger(__name__)
 

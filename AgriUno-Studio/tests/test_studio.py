@@ -26,8 +26,8 @@ from config.constants import (  # noqa: E402
     boleh,
     label_peran,
 )
-from models.base_model import BaseModel, ke_decimal, normalkan  # noqa: E402
-from models.user_model import UserModel  # noqa: E402
+from AgriUno_UTS_RPL.models.base_model import BaseModel, ke_decimal, normalkan  # noqa: E402
+from AgriUno_UTS_RPL.models.user_model import UserModel  # noqa: E402
 
 
 # ============================================================
