@@ -44,6 +44,11 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+      - name: Install system packages (tkinter dan display virtual)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk xvfb
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -59,13 +64,13 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          pytest -v --cov=config --cov=models --cov=controllers --cov=views \
+          xvfb-run -a pytest -v --cov=config --cov=models --cov=controllers --cov=views \
                  --cov-report=term-missing --cov-report=xml
 
       - name: Run AgriUno Studio tests
         run: |
           cd AgriUno-Studio
-          pytest -v --cov=. --cov-report=term-missing
+          xvfb-run -a pytest -v --cov=. --cov-report=term-missing
 
       - name: Lint with ruff
         run: |
